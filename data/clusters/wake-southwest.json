@@ -1,0 +1,42 @@
+{
+  "cluster_id": "wake-southwest",
+  "cluster_name": "Southwest Wake County",
+  "state": "North Carolina",
+  "state_abbr": "NC",
+  "counties": ["Wake County"],
+  "cities": [
+    { "slug": "apex-nc", "city": "Apex", "state_abbr": "NC" },
+    { "slug": "cary-nc", "city": "Cary", "state_abbr": "NC" },
+    { "slug": "holly-springs-nc", "city": "Holly Springs", "state_abbr": "NC" },
+    { "slug": "fuquay-varina-nc", "city": "Fuquay-Varina", "state_abbr": "NC" }
+  ],
+  "pricing": {
+    "dui": { "monthly_usd": 1000, "setup_usd": 0 },
+    "personal_injury": { "monthly_usd": 1000, "setup_usd": 0 }
+  },
+  "sponsorships": {
+    "dui": {
+      "status": "available",
+      "sponsor_id": null,
+      "effective_date": null,
+      "notes_internal": "Launch cluster. One sponsor per practice. No rotation."
+    },
+    "personal_injury": {
+      "status": "available",
+      "sponsor_id": null,
+      "effective_date": null,
+      "notes_internal": "Phase 1/2 upsell target once DUI is sold."
+    }
+  },
+  "rules": {
+    "one_sponsor_per_practice": true,
+    "no_rotation": true,
+    "no_shared_slots": true,
+    "immutable_city_list": true
+  },
+  "meta": {
+    "created_at": "2026-02-20",
+    "updated_at": "2026-02-20",
+    "version": 1
+  }
+}
