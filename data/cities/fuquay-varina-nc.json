@@ -1,0 +1,35 @@
+{
+  "city": "Holly Springs",
+  "state": "North Carolina",
+  "state_abbr": "NC",
+  "county": "Wake County",
+  "slug": "holly-springs-nc",
+  "practice": "dui",
+  "courts": [
+    {
+      "name": "Wake County District Court",
+      "location": "Raleigh, NC"
+    }
+  ],
+  "law_enforcement": [
+    "Holly Springs Police Department",
+    "Wake County Sheriff’s Office",
+    "North Carolina State Highway Patrol"
+  ],
+  "dmv": {
+    "agency": "North Carolina Division of Motor Vehicles",
+    "notes": "Administrative license actions are handled at the state level."
+  },
+  "geography": {
+    "metro": "Raleigh-Durham-Chapel Hill",
+    "nearby_cities": [
+      "Apex",
+      "Cary",
+      "Fuquay-Varina"
+    ]
+  },
+  "cluster": {
+    "id": "wake-southwest",
+    "name": "Southwest Wake County"
+  }
+}
