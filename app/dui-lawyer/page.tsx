@@ -1,9 +1,60 @@
 import Link from "next/link";
+import fs from "fs";
+import path from "path";
+
+type CityPack = {
+  city: string;
+  state: string;
+  state_abbr: string;
+  county: string;
+  slug: string;
+  practice: "dui";
+  cluster?: { id: string; name: string };
+};
+
+function loadAllDuiCityPacks(): CityPack[] {
+  const dir = path.join(process.cwd(), "data", "cities");
+  if (!fs.existsSync(dir)) return [];
+
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
+
+  const packs: CityPack[] = [];
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const raw = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(raw);
+
+    // Only include DUI packs
+    if (data?.practice !== "dui") continue;
+
+    // Minimal requirements for listing
+    if (!data?.city || !data?.state_abbr || !data?.slug) continue;
+
+    packs.push({
+      city: data.city,
+      state: data.state,
+      state_abbr: data.state_abbr,
+      county: data.county,
+      slug: data.slug,
+      practice: "dui",
+      cluster: data.cluster,
+    });
+  }
+
+  // Sort: state_abbr then city
+  packs.sort((a, b) => {
+    if (a.state_abbr !== b.state_abbr) return a.state_abbr.localeCompare(b.state_abbr);
+    return a.city.localeCompare(b.city);
+  });
+
+  return packs;
+}
 
 export default function DuiLawyerHubPage() {
+  const cities = loadAllDuiCityPacks();
+
   return (
     <main className="mx-auto max-w-4xl px-6 py-12 space-y-10">
-      {/* Header */}
       <header className="space-y-4">
         <h1 className="text-3xl font-semibold text-neutral-900">
           DUI Law: Charges, Process, and What to Expect
@@ -18,11 +69,8 @@ export default function DuiLawyerHubPage() {
         </p>
       </header>
 
-      {/* What is DUI */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-neutral-900">
-          What is a DUI?
-        </h2>
+        <h2 className="text-xl font-semibold text-neutral-900">What is a DUI?</h2>
         <p className="text-neutral-700">
           A DUI charge generally alleges that a driver operated a motor vehicle
           while impaired beyond a legally defined limit. Impairment may be based
@@ -30,99 +78,43 @@ export default function DuiLawyerHubPage() {
           testing, or a combination of factors.
         </p>
         <p className="text-neutral-700">
-          While terminology and thresholds vary by state, DUI charges typically
-          apply to alcohol-related impairment and may also include impairment
-          caused by prescription medications or controlled substances.
+          This hub focuses exclusively on DUI-related matters. Non-DUI criminal
+          charges are covered separately in our criminal defense resources.
         </p>
       </section>
 
-      {/* DUI vs other criminal charges */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-neutral-900">
-          DUI vs. Other Criminal Charges
+      <section className="space-y-4 rounded-xl border border-neutral-200 p-6">
+        <h2 className="text-lg font-semibold text-neutral-900">
+          DUI information by city
         </h2>
         <p className="text-neutral-700">
-          DUI offenses are usually handled separately from other criminal
-          matters. Although a DUI is a criminal charge in many jurisdictions, it
-          follows its own procedures, penalties, and administrative rules.
+          Select a city for localized DUI information, including courts and
+          administrative considerations.
         </p>
-        <p className="text-neutral-700">
-          This guide focuses exclusively on DUI-related matters. Information
-          about non-DUI criminal charges is covered separately in our criminal
-          defense resources.
-        </p>
+
+        {cities.length === 0 ? (
+          <p className="text-sm text-neutral-600">
+            City-specific guides will appear here as they are published.
+          </p>
+        ) : (
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {cities.map((c) => (
+              <li key={c.slug} className="rounded-lg border border-neutral-200 p-4 hover:bg-neutral-50">
+                <Link href={`/dui-lawyer/${c.slug}`} className="block">
+                  <div className="font-medium text-neutral-900">
+                    {c.city}, {c.state_abbr}
+                  </div>
+                  <div className="mt-1 text-sm text-neutral-600">
+                    County: {c.county}
+                    {c.cluster?.name ? ` • Cluster: ${c.cluster.name}` : ""}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
-      {/* The DUI process */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-neutral-900">
-          The DUI Process (General Overview)
-        </h2>
-        <ol className="list-decimal pl-6 space-y-2 text-neutral-700">
-          <li>Traffic stop or checkpoint</li>
-          <li>Field sobriety and/or chemical testing</li>
-          <li>Arrest and formal charging</li>
-          <li>Administrative license review or suspension</li>
-          <li>Criminal court proceedings</li>
-        </ol>
-        <p className="text-neutral-700">
-          The exact process, timelines, and available defenses depend on state
-          law and local court procedures.
-        </p>
-      </section>
-
-      {/* Penalties */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-neutral-900">
-          Potential Consequences of a DUI
-        </h2>
-        <ul className="list-disc pl-6 space-y-2 text-neutral-700">
-          <li>Fines and court costs</li>
-          <li>License suspension or revocation</li>
-          <li>Mandatory education or treatment programs</li>
-          <li>Probation or incarceration in some cases</li>
-          <li>Increased insurance premiums</li>
-        </ul>
-        <p className="text-neutral-700">
-          Penalties often increase for repeat offenses or cases involving
-          aggravating factors.
-        </p>
-      </section>
-
-      {/* City-specific guidance */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-neutral-900">
-          DUI Laws by City and State
-        </h2>
-        <p className="text-neutral-700">
-          DUI laws are defined at the state level but enforced locally. Court
-          procedures, enforcement practices, and administrative processes can
-          vary by city and county.
-        </p>
-        <p className="text-neutral-700">
-          Our city-specific DUI guides provide localized information, including
-          relevant courts, agencies, and procedural considerations.
-        </p>
-      </section>
-
-      {/* CTA to city pages */}
-      <section className="rounded-xl border border-neutral-200 p-6 space-y-3">
-        <h3 className="text-lg font-semibold text-neutral-900">
-          Find DUI information for your city
-        </h3>
-        <p className="text-neutral-700">
-          Select a city to learn how DUI laws and procedures apply locally.
-        </p>
-
-        {/* Placeholder links — real cities added later */}
-        <div className="flex flex-wrap gap-4 text-sm">
-          <span className="text-neutral-500">
-            City-specific guides coming soon.
-          </span>
-        </div>
-      </section>
-
-      {/* Disclaimer */}
       <section className="space-y-3 rounded-xl bg-neutral-50 p-6">
         <h2 className="text-base font-semibold text-neutral-900">
           Legal Information Disclaimer
@@ -135,7 +127,6 @@ export default function DuiLawyerHubPage() {
         </p>
       </section>
 
-      {/* Footer nav */}
       <footer className="pt-6 border-t border-neutral-200 text-sm text-neutral-600">
         <Link href="/" className="hover:text-neutral-800">
           ← Back to City Law Guide
