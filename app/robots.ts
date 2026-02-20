@@ -6,9 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/clusters/",
-        ],
+        disallow: ["/clusters/"],
       },
     ],
     sitemap: "https://citylawguide.com/sitemap.xml",
