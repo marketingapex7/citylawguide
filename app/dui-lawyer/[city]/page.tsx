@@ -4,6 +4,13 @@ import { notFound } from "next/navigation";
 import fs from "fs";
 import path from "path";
 
+// Use relative import to avoid "@/..." alias issues
+import {
+  loadClusterOrThrow,
+  assertCityInClusterOrThrow,
+  getSponsorship,
+} from "../../../lib/inventory";
+
 type Court = { name: string; location: string };
 type CityPack = {
   city: string;
@@ -51,12 +58,8 @@ function loadCityPack(slug: string): CityPack | null {
       );
     if (!Array.isArray(data.courts) || data.courts.length < 1)
       throw new Error(`courts must be a non-empty array`);
-    if (
-      !Array.isArray(data.law_enforcement) ||
-      data.law_enforcement.length < 1
-    ) {
+    if (!Array.isArray(data.law_enforcement) || data.law_enforcement.length < 1)
       throw new Error(`law_enforcement must be a non-empty array`);
-    }
     if (!data.dmv?.agency) throw new Error(`dmv.agency is required`);
 
     return data as CityPack;
@@ -106,8 +109,80 @@ export default async function DuiCityPage({
   const pack = loadCityPack(city);
   if (!pack) return notFound();
 
+  // Inventory wiring (strict): if a city pack declares a cluster, the cluster file must exist
+  // and must include this city slug.
+  let clusterName: string | undefined;
+  let clusterId: string | undefined;
+  let duiStatus: string | undefined;
+
+  if (pack.cluster?.id) {
+    const cluster = loadClusterOrThrow(pack.cluster.id);
+    assertCityInClusterOrThrow(cluster, pack.slug);
+
+    clusterName = cluster.cluster_name;
+    clusterId = cluster.cluster_id;
+
+    const dui = getSponsorship(cluster, "dui");
+    duiStatus =
+      dui.status === "available"
+        ? "Available"
+        : dui.status === "reserved"
+        ? "Reserved"
+        : dui.status === "sold"
+        ? "Sold"
+        : undefined;
+  }
+
+  // Pre-stringify JSON-LD (keeps TS + runtime happy)
+  const webPageLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: `DUI Laws and Process in ${pack.city}, ${pack.state_abbr}`,
+    url: `https://citylawguide.com/dui-lawyer/${pack.slug}`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "City Law Guide",
+      url: "https://citylawguide.com",
+    },
+  });
+
+  const breadcrumbsLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://citylawguide.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "DUI",
+        item: "https://citylawguide.com/dui-lawyer",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: `${pack.city}, ${pack.state_abbr}`,
+        item: `https://citylawguide.com/dui-lawyer/${pack.slug}`,
+      },
+    ],
+  });
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12 space-y-10">
+    <article className="space-y-10">
+      {/* JSON-LD: WebPage + Breadcrumbs */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: webPageLd }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: breadcrumbsLd }}
+      />
+
       <header className="space-y-4">
         <h1 className="text-3xl font-semibold text-neutral-900">
           DUI Laws and Process in {pack.city}, {pack.state_abbr}
@@ -122,7 +197,18 @@ export default async function DuiCityPage({
 
         <p className="text-sm text-neutral-600">
           County: {pack.county}
-          {pack.cluster?.name ? ` • Cluster: ${pack.cluster.name}` : ""}
+          {clusterName && clusterId ? (
+            <>
+              {" "}
+              • Cluster:{" "}
+              <Link
+                href={`/clusters/${clusterId}`}
+                className="underline underline-offset-4"
+              >
+                {clusterName}
+              </Link>
+            </>
+          ) : null}
         </p>
       </header>
 
@@ -202,11 +288,31 @@ export default async function DuiCityPage({
         <h2 className="text-lg font-semibold text-neutral-900">
           Featured DUI Attorney in {pack.city}
         </h2>
+
         <p className="text-neutral-700">
           This section may display a clearly labeled featured attorney who
           sponsors this page. Featured placements are not rankings or
           endorsements.
         </p>
+
+        {/* Inventory status */}
+        {duiStatus ? (
+          <p className="text-sm text-neutral-600">
+            Placement status (DUI):{" "}
+            <span
+              className={
+                duiStatus === "Available"
+                  ? "font-medium text-emerald-700"
+                  : duiStatus === "Reserved"
+                  ? "font-medium text-amber-700"
+                  : "font-medium text-red-700"
+              }
+            >
+              {duiStatus}
+            </span>
+          </p>
+        ) : null}
+
         <p className="text-sm text-neutral-600">
           <Link
             href="/sponsorship-disclosure"
@@ -233,6 +339,6 @@ export default async function DuiCityPage({
           ← Back to DUI Law Overview
         </Link>
       </footer>
-    </main>
+    </article>
   );
 }

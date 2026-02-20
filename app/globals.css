@@ -1,26 +1,106 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   Editorial base theme (light, publication)
+   ========================================= */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: 255 255 255;
+  --fg: 17 24 39;       /* neutral-900-ish */
+  --muted: 75 85 99;    /* neutral-600-ish */
+  --border: 229 231 235;/* neutral-200-ish */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Make anchors look like editorial links */
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: rgb(55 65 81); /* neutral-700 */
+}
+
+/* =========================================
+   Editorial typography defaults
+   ========================================= */
+
+@layer base {
+  /* Headings: tighter + calmer */
+  h1 {
+    @apply text-3xl font-semibold tracking-tight text-neutral-900;
+  }
+  h2 {
+    @apply text-xl font-semibold tracking-tight text-neutral-900;
+  }
+  h3 {
+    @apply text-lg font-semibold text-neutral-900;
+  }
+
+  /* Paragraph defaults */
+  p {
+    @apply text-base leading-7 text-neutral-700;
+  }
+
+  /* Lists */
+  ul {
+    @apply list-disc pl-6;
+  }
+  ol {
+    @apply list-decimal pl-6;
+  }
+  li {
+    @apply my-1 text-neutral-700;
+  }
+
+  /* Small text */
+  small {
+    @apply text-sm text-neutral-600;
+  }
+
+  /* HR */
+  hr {
+    @apply my-10 border-neutral-200;
+  }
+
+  /* Tables (used on cluster pages) */
+  table {
+    @apply w-full border-collapse;
+  }
+  th {
+    @apply border-b border-neutral-200 py-2 text-left text-sm font-semibold text-neutral-700;
+  }
+  td {
+    @apply border-b border-neutral-100 py-2 text-sm text-neutral-700;
+  }
+}
+
+/* =========================================
+   Nice “content card” feel on sections
+   ========================================= */
+@layer components {
+  .card {
+    @apply rounded-lg border border-neutral-200 bg-white;
+  }
+  .card-pad {
+    @apply p-6;
+  }
+  .muted {
+    @apply text-neutral-600;
+  }
 }
