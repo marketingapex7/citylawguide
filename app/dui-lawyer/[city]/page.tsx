@@ -11,7 +11,13 @@ import {
   getSponsorship,
 } from "../../../lib/inventory";
 
-type Court = { name: string; location: string };
+type Court = {
+  name: string;
+  location: string;
+  address?: string;
+  phone?: string;
+  maps_url?: string;
+};
 type CityPack = {
   city: string;
   state: string;
@@ -69,6 +75,7 @@ function loadCityPack(slug: string): CityPack | null {
       `Invalid city pack JSON for "${slug}": ${(e as Error).message}`
     );
   }
+  
 }
 
 // Build-time static generation for all city packs
@@ -247,13 +254,49 @@ export default async function DuiCityPage({
           DUI cases arising in {pack.city} are typically handled in the
           following court:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-neutral-700">
-          {pack.courts.map((court) => (
-            <li key={court.name}>
-              {court.name} ({court.location})
-            </li>
-          ))}
-        </ul>
+        <ul className="list-disc pl-6 space-y-3 text-neutral-700">
+  {pack.courts.map((court) => {
+    const telHref = court.phone
+      ? `tel:${court.phone.replace(/[^\d+]/g, "")}`
+      : undefined;
+
+    return (
+      <li key={court.name}>
+        <div className="font-medium text-neutral-900">
+          {court.name}{" "}
+          <span className="font-normal text-neutral-700">
+            ({court.location})
+          </span>
+        </div>
+
+        {court.address ? (
+          <div className="text-neutral-700">{court.address}</div>
+        ) : null}
+
+        {(court.phone || court.maps_url) ? (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            {court.phone && telHref ? (
+              <a href={telHref} className="underline underline-offset-4">
+                {court.phone}
+              </a>
+            ) : null}
+
+            {court.maps_url ? (
+              <a
+                href={court.maps_url}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="underline underline-offset-4"
+              >
+                View on map
+              </a>
+            ) : null}
+          </div>
+        ) : null}
+      </li>
+    );
+  })}
+</ul>
       </section>
 
       <section className="space-y-4">
