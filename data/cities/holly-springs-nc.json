@@ -8,7 +8,10 @@
   "courts": [
     {
       "name": "Wake County District Court",
-      "location": "Raleigh, NC"
+  "location": "Raleigh, NC",
+  "address": "316 Fayetteville St, Raleigh, NC 27601",
+  "phone": "(919) 792-4000",
+  "maps_url": "https://www.google.com/maps/place/316+Fayetteville+St,+Raleigh,+NC+27601"
     }
   ],
   "law_enforcement": [
