@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+// Use relative import to avoid "@/..." path alias issues in TS/VSCode
+import { organizationJsonLd, websiteJsonLd } from "../lib/schema";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,13 +28,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
+  // Pre-stringify JSON-LD to keep TS + runtime happy
+  const orgLd = JSON.stringify(organizationJsonLd());
+  const siteLd = JSON.stringify(websiteJsonLd());
+
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
         className={[
           geistSans.variable,
@@ -39,9 +43,17 @@ export default function RootLayout({
           "bg-white text-neutral-900",
         ].join(" ")}
       >
-        {/* Subtle site frame */}
+        {/* Global JSON-LD: Organization + WebSite */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: orgLd }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: siteLd }}
+        />
+
         <div className="min-h-full">
-          {/* Header */}
           <header className="border-b border-neutral-200 bg-white/80 backdrop-blur">
             <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between gap-6">
               <Link href="/" className="flex items-center gap-2">
@@ -76,16 +88,17 @@ export default function RootLayout({
             </div>
           </header>
 
-          {/* Main */}
           <div className="mx-auto max-w-5xl px-6">
             <div className="py-10">{children}</div>
           </div>
 
-          {/* Footer */}
           <footer className="border-t border-neutral-200 bg-white">
             <div className="mx-auto max-w-5xl px-6 py-8 text-sm text-neutral-600">
               <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <Link href="/editorial-policy" className="hover:text-neutral-900">
+                <Link
+                  href="/editorial-policy"
+                  className="hover:text-neutral-900"
+                >
                   Editorial Policy
                 </Link>
                 <Link
