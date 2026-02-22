@@ -1,9 +1,9 @@
 {
-  "city": "Holly Springs",
+  "city": "Fuquay-Varina",
   "state": "North Carolina",
   "state_abbr": "NC",
   "county": "Wake County",
-  "slug": "holly-springs-nc",
+  "slug": "fuquay-varina-nc",
   "practice": "dui",
   "courts": [
     {
@@ -12,8 +12,8 @@
     }
   ],
   "law_enforcement": [
-    "Holly Springs Police Department",
-    "Wake County Sheriff’s Office",
+    "Fuquay-Varina Police Department",
+    "Wake County Sheriff's Office",
     "North Carolina State Highway Patrol"
   ],
   "dmv": {
@@ -25,11 +25,11 @@
     "nearby_cities": [
       "Apex",
       "Cary",
-      "Fuquay-Varina"
+      "Holly Springs"
     ]
   },
   "cluster": {
     "id": "wake-southwest",
-    "name": "Southwest Wake County"
+    "name": "Wake Southwest"
   }
 }
